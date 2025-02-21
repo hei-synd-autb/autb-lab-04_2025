@@ -1,0 +1,1238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Rexroth" productName="ctrlX PLC Engineering" productVersion="ctrlX PLC 1.20.7" creationDateTime="2025-02-11T13:23:26.5400649" />
+  <contentHeader name="Practical Work One" version="0.0" modificationDateTime="2025-02-11T13:21:41.0795887" organization="HEVS" author="Cedric Lenoir">
+    <Comment>First Test for Practical Work One</Comment>
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation>
+          <property name="Author" type="string">Cedric Lenoir</property>
+          <property name="Company" type="string">HEVS</property>
+          <property name="Description" type="string">First Test for Practical Work One</property>
+          <property name="Project" type="string">PracticalWork_05_GripperPP</property>
+          <property name="Title" type="string">Practical Work One</property>
+          <property name="Version" type="version">0.0</property>
+        </ProjectInformation>
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes>
+      <dataType name="E_InOperationBase">
+        <baseType>
+          <enum>
+            <values>
+              <value name="Idle" value="999" />
+              <value name="Init" value="10" />
+              <value name="InOp" value="20" />
+              <value name="Error" value="30" />
+            </values>
+          </enum>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+              <Attribute Name="strict" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>a9359279-3f40-47d3-ae17-e926eb3489d1</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="E_InOpGripper">
+        <baseType>
+          <enum>
+            <values>
+              <value name="IsIdle" value="999" />
+              <value name="IsOpen" value="10" />
+              <value name="IsClosed" value="20" />
+              <value name="PartPresent" value="30" />
+            </values>
+          </enum>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+              <Attribute Name="strict" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>c144f9bc-04ac-43b8-9eab-3b0226c81fd6</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="E_ExecuteDone">
+        <baseType>
+          <enum>
+            <values>
+              <value name="Idle" value="999" />
+              <value name="Init" value="10" />
+              <value name="InOp" value="20" />
+              <value name="Done" value="30" />
+              <value name="Error" value="40" />
+            </values>
+          </enum>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+              <Attribute Name="strict" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>0239a653-e5ee-4ff7-b7b0-d124031a111f</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+    </dataTypes>
+    <pous>
+      <pou name="PRG_Gripper" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="fbGripperState">
+              <type>
+                <derived name="FB_GripperState" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">*********************************************************************************************************************
+    	YOUR VARIABLES HERE
+	*********************************************************************************************************************</xhtml>
+              </documentation>
+            </variable>
+            <variable name="fbOpenGripper">
+              <type>
+                <derived name="FB_OpenGripper" />
+              </type>
+            </variable>
+            <variable name="fbCloseGripper">
+              <type>
+                <derived name="FB_CloseGripper" />
+              </type>
+            </variable>
+            <variable name="uliCount">
+              <type>
+                <ULINT />
+              </type>
+            </variable>
+            <variable name="bInitDone">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="fbPackStates">
+              <type>
+                <derived name="FB_PackStates" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">
+		Pack Partial state machine
+	</xhtml>
+              </documentation>
+            </variable>
+            <variable name="eAborting">
+              <type>
+                <derived name="E_Aborting" />
+              </type>
+            </variable>
+            <variable name="eClearing">
+              <type>
+                <derived name="E_Clearing" />
+              </type>
+            </variable>
+            <variable name="eResetting">
+              <type>
+                <derived name="E_Resetting" />
+              </type>
+            </variable>
+            <variable name="eStarting">
+              <type>
+                <derived name="E_Starting" />
+              </type>
+            </variable>
+            <variable name="eStopping">
+              <type>
+                <derived name="E_Stopping" />
+              </type>
+            </variable>
+            <variable name="stStateMachineInfo">
+              <type>
+                <derived name="ST_StateMachineInfo" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">
+		State machine info for Execute
+	</xhtml>
+              </documentation>
+            </variable>
+            <variable name="stPlcOpenFbs">
+              <type>
+                <derived name="ST_PlcOpenFbs" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">
+        List of Structures
+    </xhtml>
+              </documentation>
+            </variable>
+            <variable name="stSetParam_X">
+              <type>
+                <derived name="ST_SetMotionParam" />
+              </type>
+              <initialValue>
+                <structValue>
+                  <value member="rVeloctiy_mm_s">
+                    <simpleValue value="2000" />
+                  </value>
+                  <value member="rAcceleration_mm_s2">
+                    <simpleValue value="1000" />
+                  </value>
+                  <value member="rDeceleration_mm_s2">
+                    <simpleValue value="1000" />
+                  </value>
+                  <value member="rJerk_mm_s3">
+                    <simpleValue value="1" />
+                  </value>
+                </structValue>
+              </initialValue>
+            </variable>
+            <variable name="stSetParam_Y">
+              <type>
+                <derived name="ST_SetMotionParam" />
+              </type>
+              <initialValue>
+                <structValue>
+                  <value member="rVeloctiy_mm_s">
+                    <simpleValue value="2000" />
+                  </value>
+                  <value member="rAcceleration_mm_s2">
+                    <simpleValue value="1000" />
+                  </value>
+                  <value member="rDeceleration_mm_s2">
+                    <simpleValue value="1000" />
+                  </value>
+                  <value member="rJerk_mm_s3">
+                    <simpleValue value="1" />
+                  </value>
+                </structValue>
+              </initialValue>
+            </variable>
+            <variable name="stSetParam_Z">
+              <type>
+                <derived name="ST_SetMotionParam" />
+              </type>
+              <initialValue>
+                <structValue>
+                  <value member="rVeloctiy_mm_s">
+                    <simpleValue value="2000" />
+                  </value>
+                  <value member="rAcceleration_mm_s2">
+                    <simpleValue value="1000" />
+                  </value>
+                  <value member="rDeceleration_mm_s2">
+                    <simpleValue value="1000" />
+                  </value>
+                  <value member="rJerk_mm_s3">
+                    <simpleValue value="1" />
+                  </value>
+                </structValue>
+              </initialValue>
+            </variable>
+            <variable name="mcReadActualPos_X">
+              <type>
+                <derived name="MC_ReadActualPosition" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">
+        List of Function Blocks
+    </xhtml>
+              </documentation>
+            </variable>
+            <variable name="mcReadStatus_X">
+              <type>
+                <derived name="MC_ReadStatus" />
+              </type>
+            </variable>
+            <variable name="mcPower_X">
+              <type>
+                <derived name="MC_Power" />
+              </type>
+            </variable>
+            <variable name="mcMoveAbs_X">
+              <type>
+                <derived name="MC_MoveAbsolute" />
+              </type>
+            </variable>
+            <variable name="mcStop_X">
+              <type>
+                <derived name="MC_Stop" />
+              </type>
+              <initialValue>
+                <structValue>
+                  <value member="Deceleration">
+                    <simpleValue value="1" />
+                  </value>
+                </structValue>
+              </initialValue>
+            </variable>
+            <variable name="mcReset_X">
+              <type>
+                <derived name="MC_Reset" />
+              </type>
+            </variable>
+            <variable name="mcReadActualPos_Y">
+              <type>
+                <derived name="MC_ReadActualPosition" />
+              </type>
+            </variable>
+            <variable name="mcReadStatus_Y">
+              <type>
+                <derived name="MC_ReadStatus" />
+              </type>
+            </variable>
+            <variable name="mcPower_Y">
+              <type>
+                <derived name="MC_Power" />
+              </type>
+            </variable>
+            <variable name="mcMoveAbs_Y">
+              <type>
+                <derived name="MC_MoveAbsolute" />
+              </type>
+            </variable>
+            <variable name="mcStop_Y">
+              <type>
+                <derived name="MC_Stop" />
+              </type>
+              <initialValue>
+                <structValue>
+                  <value member="Deceleration">
+                    <simpleValue value="1" />
+                  </value>
+                </structValue>
+              </initialValue>
+            </variable>
+            <variable name="mcReset_Y">
+              <type>
+                <derived name="MC_Reset" />
+              </type>
+            </variable>
+            <variable name="mcReadActualPos_Z">
+              <type>
+                <derived name="MC_ReadActualPosition" />
+              </type>
+            </variable>
+            <variable name="mcReadStatus_Z">
+              <type>
+                <derived name="MC_ReadStatus" />
+              </type>
+            </variable>
+            <variable name="mcPower_Z">
+              <type>
+                <derived name="MC_Power" />
+              </type>
+            </variable>
+            <variable name="mcMoveAbs_Z">
+              <type>
+                <derived name="MC_MoveAbsolute" />
+              </type>
+            </variable>
+            <variable name="mcStop_Z">
+              <type>
+                <derived name="MC_Stop" />
+              </type>
+              <initialValue>
+                <structValue>
+                  <value member="Deceleration">
+                    <simpleValue value="1" />
+                  </value>
+                </structValue>
+              </initialValue>
+            </variable>
+            <variable name="mcReset_Z">
+              <type>
+                <derived name="MC_Reset" />
+              </type>
+            </variable>
+            <variable name="GripperIsOpen">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="TRUE" />
+              </initialValue>
+            </variable>
+            <variable name="GripperIsClosed">
+              <type>
+                <BOOL />
+              </type>
+              <initialValue>
+                <simpleValue value="TRUE" />
+              </initialValue>
+            </variable>
+            <variable name="stRemote">
+              <type>
+                <derived name="ST_RemotePositions" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Set position of axes </xhtml>
+              </documentation>
+            </variable>
+            <variable name="stTestFbGripperHmi">
+              <type>
+                <derived name="ST_TestFbGripperHmi" />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Check your FB on HMI </xhtml>
+              </documentation>
+            </variable>
+          </localVars>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+	www.hevs.ch
+	Institut Systemes Industriels
+	Project: 	Projet No: PW Move Absolute
+	Author:		Cedric Lenoir
+	Date:		2024 April 02
+	
+	Summary:	Template of a program using PLCopen on partial Pack State
+	            Use a Cyclic Setpoint for motion in Pack Execute.
+</xhtml>
+          </documentation>
+        </interface>
+        <actions>
+          <action name="ACT_ForAxis_X">
+            <body>
+              <ST>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">(**********************************************************************************************************************
+	X Axis
+**********************************************************************************************************************)
+mcMoveAbs_X(Axis := GVL_AxisDefines.X_Axis,
+               Position := stSetParam_X.rPosition_mm,
+               Velocity := stSetParam_X.rVeloctiy_mm_s,
+               Acceleration := stSetParam_X.rAcceleration_mm_s2,
+               Deceleration := stSetParam_X.rDeceleration_mm_s2,
+               Jerk := stSetParam_X.rJerk_mm_s3,
+               Execute := (stPlcOpenFbs.bMoveAbs AND stPlcOpenFbs.bEnableRemote)    OR
+                          (eResetting = E_Resetting.eMotionInit)                    OR
+						  (eStarting = E_Starting.eMotionStarting)                  OR
+                          (stStateMachineInfo.eState = E_Execute.eMotionBack)       OR              
+                          (stStateMachineInfo.eState = E_Execute.eMotionFwd));  
+						  
+mcReadStatus_X(Axis := GVL_AxisDefines.X_Axis,
+               Enable := stPlcOpenFbs.bEnableReadStatus);
+
+mcReadActualPos_X(Axis := GVL_AxisDefines.X_Axis,
+                  Enable := stPlcOpenFbs.bEnableReadPosition);
+
+mcPower_X(Axis := GVL_AxisDefines.X_Axis,
+        Enable := (stPlcOpenFbs.bPowerOn AND stPlcOpenFbs.bEnableRemote) OR
+                   		NOT stPlcOpenFbs.bEnableRemote AND 
+				   		NOT (fbPackStates.state.Aborting OR
+                             fbPackStates.state.Aborted));
+
+mcStop_X(Axis := GVL_AxisDefines.X_Axis,
+         Execute := (stPlcOpenFbs.bStop AND stPlcOpenFbs.bEnableRemote) OR
+                     fbPackStates.state.Stopping);
+
+mcReset_X(Axis := GVL_AxisDefines.X_Axis,
+         Execute := (stPlcOpenFbs.bReset AND stPlcOpenFbs.bEnableRemote) OR
+                     fbPackStates.state.Aborting);
+
+</xhtml>
+              </ST>
+            </body>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>c942ee71-54df-4622-ab74-7fabaf8b5da6</ObjectId>
+              </data>
+            </addData>
+          </action>
+          <action name="ACT_ForAxis_Y">
+            <body>
+              <ST>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">(**********************************************************************************************************************
+	Y Axis
+**********************************************************************************************************************)
+mcReadStatus_Y(Axis := GVL_AxisDefines.Y_Axis,
+               Enable := stPlcOpenFbs.bEnableReadStatus);
+
+mcReadActualPos_Y(Axis := GVL_AxisDefines.Y_Axis,
+                  Enable := stPlcOpenFbs.bEnableReadPosition);
+
+mcPower_Y(Axis := GVL_AxisDefines.Y_Axis,
+        Enable := (stPlcOpenFbs.bPowerOn AND stPlcOpenFbs.bEnableRemote) OR
+                   		NOT stPlcOpenFbs.bEnableRemote AND 
+				   		NOT (fbPackStates.state.Aborting OR
+                             fbPackStates.state.Aborted));
+
+mcStop_Y(Axis := GVL_AxisDefines.Y_Axis,
+         Execute := (stPlcOpenFbs.bStop AND stPlcOpenFbs.bEnableRemote) OR
+                     fbPackStates.state.Stopping);
+
+mcReset_Y(Axis := GVL_AxisDefines.Y_Axis,
+         Execute := (stPlcOpenFbs.bReset AND stPlcOpenFbs.bEnableRemote) OR
+                     fbPackStates.state.Aborting);
+
+</xhtml>
+              </ST>
+            </body>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>bf66d19f-a3ba-4a01-93df-097fdbe59c02</ObjectId>
+              </data>
+            </addData>
+          </action>
+          <action name="ACT_ForAxis_Z">
+            <body>
+              <ST>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">(**********************************************************************************************************************
+	Z Axis
+**********************************************************************************************************************)
+mcReadStatus_Z(Axis := GVL_AxisDefines.Z_Axis,
+               Enable := stPlcOpenFbs.bEnableReadStatus);
+
+mcReadActualPos_Z(Axis := GVL_AxisDefines.Z_Axis,
+                  Enable := stPlcOpenFbs.bEnableReadPosition);
+
+mcPower_Z(Axis := GVL_AxisDefines.Z_Axis,
+        Enable := (stPlcOpenFbs.bPowerOn AND stPlcOpenFbs.bEnableRemote) OR
+                   		NOT stPlcOpenFbs.bEnableRemote AND 
+				   		NOT (fbPackStates.state.Aborting OR
+                             fbPackStates.state.Aborted));
+
+// Note that a stop without deceleration leads to an error!!
+mcStop_Z(Axis := GVL_AxisDefines.Z_Axis,
+         Execute := (stPlcOpenFbs.bStop AND stPlcOpenFbs.bEnableRemote) OR
+                     fbPackStates.state.Stopping);
+
+mcReset_Z(Axis := GVL_AxisDefines.Z_Axis,
+         Execute := (stPlcOpenFbs.bReset AND stPlcOpenFbs.bEnableRemote) OR
+                     fbPackStates.state.Aborting);
+</xhtml>
+              </ST>
+            </body>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>121ee88f-6e85-4783-aa79-b03395285995</ObjectId>
+              </data>
+            </addData>
+          </action>
+          <action name="ACT_SomeStateMachines">
+            <body>
+              <ST>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">(*
+    Some inits independant of the Main State Machine
+*)
+IF NOT bInitDone THEN
+	bInitDone := TRUE;
+    stPlcOpenFbs.bEnableReadStatus := TRUE;
+    stPlcOpenFbs.bEnableReadPosition := TRUE;
+    stPlcOpenFbs.bEnableReadVelocity := TRUE;
+	// Init values to compile them and send to OPC_UA
+	stTestFbGripperHmi.gripperStateClosed := FALSE;
+	stTestFbGripperHmi.gripperStateOpen := FALSE;
+	stTestFbGripperHmi.gripperStatePartPresent := FALSE;
+	stTestFbGripperHmi.gripperStateError := FALSE;
+	stTestFbGripperHmi.gripperStateInOp := FALSE;
+	stTestFbGripperHmi.executeOpenDone := FALSE;
+	stTestFbGripperHmi.executeCloseDone := FALSE;
+END_IF
+
+(*
+    Remote conditions
+*)
+IF stPlcOpenFbs.bEnableRemote THEN
+    IF mcMoveAbs_X.Done THEN
+        stPlcOpenFbs.bMoveAbs := FALSE;
+    END_IF
+    IF mcStop_X.Done THEN
+        stPlcOpenFbs.bStop := FALSE;
+        stPlcOpenFbs.bMoveAbs := FALSE;
+    END_IF
+END_IF
+
+// If remote, pack states are disabled
+fbPackStates.SoftEstop := mcReadStatus_X.ErrorStop;
+fbPackStates(Enable := NOT stPlcOpenFbs.bEnableRemote,
+			 remote := GVL_Abox.uaAboxInterface.uaButtonAndSignal);
+			 
+(*
+	Basically, only Acting state are used, wait state are doing nothing
+*)
+
+IF fbPackStates.state.Aborting THEN
+	IF mcReadStatus_X.ErrorStop THEN
+		fbPackStates.Aborting_SC := FALSE;
+	ELSE
+		fbPackStates.Aborting_SC := TRUE;
+	END_IF
+ELSE
+	;
+END_IF
+
+IF fbPackStates.state.Clearing THEN
+	// Reset Gripper in case fbOpenGripper and fbCloseGripper not presentz
+	GripperIsOpen   := TRUE;
+	GripperIsClosed	:= TRUE;	
+	IF mcReadStatus_X.Standstill THEN
+		fbPackStates.Clearing_SC := TRUE;
+	ELSE
+		fbPackStates.Clearing_SC := FALSE;
+	END_IF
+ELSE
+	;
+END_IF
+
+IF fbPackStates.state.Stopping THEN
+	IF mcReadStatus_X.Standstill THEN
+		fbPackStates.Stopping_SC := TRUE;
+	ELSE
+		fbPackStates.Stopping_SC := FALSE;
+	END_IF
+ELSE
+	;
+END_IF
+
+IF fbPackStates.state.Resetting THEN
+	fbPackStates.Resetting_SC := FALSE;
+	CASE eResetting OF
+		E_Resetting.Idle :
+            stSetParam_X.rPosition_mm := 50;
+			stSetParam_X.rVeloctiy_mm_s := 2000;  
+			eResetting := E_Resetting.eMotionInit;
+
+		E_Resetting.eMotionInit :
+			IF mcMoveAbs_X.Done THEN
+				eResetting := E_Resetting.eMotionInitDone; 
+			END_IF
+
+		E_Resetting.eMotionInitDone :
+			;;
+	END_CASE
+	 
+	IF eResetting = E_Resetting.eMotionInitDone THEN
+		fbPackStates.Resetting_SC := TRUE;
+	END_IF
+ELSE
+	eResetting := E_Resetting.Idle;
+END_IF
+
+IF fbPackStates.state.Starting THEN
+	fbPackStates.Starting_SC := FALSE;
+	CASE eStarting OF
+		E_Starting.Idle :
+            stSetParam_X.rPosition_mm := -30;
+			stSetParam_X.rVeloctiy_mm_s := 2000;  
+			eStarting := E_Starting.eMotionStarting;
+
+		E_Starting.eMotionStarting :
+			IF mcMoveAbs_X.Done THEN
+				eStarting := E_Starting.eMotionStartingDone; 
+			END_IF
+
+		E_Starting.eMotionStartingDone :
+			;
+						
+	END_CASE
+	 
+	IF (eStarting = E_Starting.eMotionStartingDone) AND GripperIsOpen THEN
+		fbPackStates.Starting_SC := TRUE;
+	END_IF
+ELSE
+	eStarting := E_Starting.Idle;
+END_IF
+
+IF fbPackStates.state.Execute THEN
+	fbPackStates.Execute_SC := FALSE;
+	(*
+		Execute State Machine.
+	*)
+	CASE stStateMachineInfo.eState OF
+		E_Execute.eIdle :
+			stStateMachineInfo.strState := 'Idle';
+			stSetParam_X.rPosition_mm := stRemote.lrPositionFwd_X;
+			stStateMachineInfo.eState := E_Execute.eMotionFwd;
+
+		E_Execute.eMotionFwd :
+			stStateMachineInfo.strState := 'Motion Fwd';
+			IF mcMoveAbs_X.Done THEN
+				stStateMachineInfo.eState := E_Execute.eMotionFwdDone; 
+			END_IF
+
+		E_Execute.eMotionFwdDone :
+			stStateMachineInfo.strState := 'Motion Fwd Done';
+			IF GripperIsClosed THEN
+				stSetParam_X.rPosition_mm := stRemote.lrPositionBck_X;
+				stStateMachineInfo.eState := E_Execute.eMotionBack;
+			END_IF
+
+		E_Execute.eMotionBack :
+			stStateMachineInfo.strState := 'Motion Back';
+			IF mcMoveAbs_X.Done THEN
+				stStateMachineInfo.eState := E_Execute.eMotionBackDone; 
+			END_IF
+
+		E_Execute.eMotionBackDone :
+			stStateMachineInfo.strState := 'Motion Back Done'; 
+			IF GripperIsOpen THEN
+				stSetParam_X.rPosition_mm := stRemote.lrPositionFwd_X;
+				stStateMachineInfo.eState := E_Execute.eMotionFwd;
+			END_IF
+
+	END_CASE
+	;
+ELSE
+	stStateMachineInfo.strState := 'Idle';
+	stStateMachineInfo.eState := E_Execute.eIdle;
+END_IF
+
+(*
+    Get Execute state machine in a DINT format
+*)
+stStateMachineInfo.diState := stStateMachineInfo.eState;
+
+</xhtml>
+              </ST>
+            </body>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>a39d17b3-4c87-4b44-9064-cff428628cac</ObjectId>
+              </data>
+            </addData>
+          </action>
+        </actions>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">ACT_SomeStateMachines();
+
+(**********************************************************************************************************************
+    YOUR CODE HERE
+**********************************************************************************************************************)
+fbGripperState.Enable := (stPlcOpenFbs.bEnableRemote)        		OR
+                   		 (NOT stPlcOpenFbs.bEnableRemote 		AND 
+				   		  NOT (fbPackStates.state.Aborting OR
+                               fbPackStates.state.Aborted)); 
+fbGripperState(hw := GVL_Abox.uaAboxInterface.uaSchunk);
+
+stTestFbGripperHmi.gripperStateClosed := fbGripperState.IsClosed;
+stTestFbGripperHmi.gripperStateOpen := fbGripperState.IsOpen;
+stTestFbGripperHmi.gripperStatePartPresent := fbGripperState.PartPresent;
+stTestFbGripperHmi.gripperStateError := fbGripperState.Error;
+stTestFbGripperHmi.gripperStateInOp := fbGripperState.InOperation;
+
+fbOpenGripper.Execute := (stStateMachineInfo.eState = E_Execute.eMotionBackDone) OR (eStarting = E_Starting.eMotionStartingDone);
+fbCloseGripper.Execute := (stStateMachineInfo.eState = E_Execute.eMotionFwdDone);
+
+fbOpenGripper(hwEV := GVL_Abox.uaAboxInterface.uaSchunkGripper,
+	          hwSensor := GVL_Abox.uaAboxInterface.uaSchunk,
+			  Done =&gt; stTestFbGripperHmi.executeOpenDone);
+			  
+fbCloseGripper(hwEV := GVL_Abox.uaAboxInterface.uaSchunkGripper,
+	          hwSensor := GVL_Abox.uaAboxInterface.uaSchunk,
+			  Done =&gt; stTestFbGripperHmi.executeCloseDone);
+			  
+GripperIsOpen   := fbOpenGripper.Done;
+GripperIsClosed	:= fbCloseGripper.Done;
+	
+(**********************************************************************************************************************
+	Utility FBs for motion, Do not modify
+**********************************************************************************************************************)
+ACT_ForAxis_X();
+ACT_ForAxis_Y();
+ACT_ForAxis_Z();</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>b7ba01cf-22f6-45c0-a794-f5960a162608</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_GripperState" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="Enable">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Default Input </xhtml>
+              </documentation>
+            </variable>
+            <variable name="thOpen">
+              <type>
+                <WORD />
+              </type>
+              <initialValue>
+                <simpleValue value="50" />
+              </initialValue>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> User Defined Inputs </xhtml>
+              </documentation>
+            </variable>
+            <variable name="thClose">
+              <type>
+                <WORD />
+              </type>
+              <initialValue>
+                <simpleValue value="950" />
+              </initialValue>
+            </variable>
+            <variable name="thPartMin">
+              <type>
+                <WORD />
+              </type>
+              <initialValue>
+                <simpleValue value="800" />
+              </initialValue>
+            </variable>
+            <variable name="thPartMax">
+              <type>
+                <WORD />
+              </type>
+              <initialValue>
+                <simpleValue value="860" />
+              </initialValue>
+            </variable>
+          </inputVars>
+          <inOutVars>
+            <variable name="hw">
+              <type>
+                <derived name="UA_Schunk_mms" />
+              </type>
+            </variable>
+          </inOutVars>
+          <outputVars>
+            <variable name="InOperation">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> Default Outputs </xhtml>
+              </documentation>
+            </variable>
+            <variable name="Error">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="IsOpen">
+              <type>
+                <BOOL />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> User Outputs </xhtml>
+              </documentation>
+            </variable>
+            <variable name="IsClosed">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="PartPresent">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="eInOperationBase">
+              <type>
+                <derived name="E_InOperationBase" />
+              </type>
+              <initialValue>
+                <simpleValue value="E_InOperationBase.Idle" />
+              </initialValue>
+            </variable>
+            <variable name="eInOpGripper">
+              <type>
+                <derived name="E_InOpGripper" />
+              </type>
+              <initialValue>
+                <simpleValue value="E_InOpGripper.IsIdle" />
+              </initialValue>
+            </variable>
+            <variable name="tonIdleCondition">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(*
+	Input management. While gripper is moving, it must not be seen as an Idle Condition
+	Here we use a timer as Input Management.
+*)
+
+tonIdleCondition(IN := (((hw.Value &gt; thOpen) AND (hw.Value &lt; thPartMin))  OR
+		                ((hw.Value &lt; thClose) AND (hw.Value &gt; thPartMax))),
+				 PT := T#1S);
+
+(*
+	Main State Machine
+*)
+CASE eInOperationBase OF
+	E_InOperationBase.Idle :
+		IF Enable THEN
+			eInOperationBase := E_InOperationBase.Init;	
+		END_IF
+		
+	E_InOperationBase.Init :
+		IF NOT Enable THEN
+			eInOperationBase := E_InOperationBase.Idle;
+		ELSIF tonIdleCondition.Q THEN
+		    eInOpGripper := E_InOpGripper.IsIdle;
+		 	eInOperationBase := E_InOperationBase.Error;
+		ELSE // Init internal state machine and jump in it
+			IF hw.Value &lt; thOpen THEN
+				eInOpGripper := E_InOpGripper.IsOpen;
+			ELSIF hw.Value &gt; thClose THEN
+				eInOpGripper := E_InOpGripper.IsClosed;
+			ELSE
+				eInOpGripper := E_InOpGripper.PartPresent;
+			END_IF
+			eInOperationBase := E_InOperationBase.InOp;
+		END_IF
+		
+	E_InOperationBase.InOp :
+		(*
+			Sub State Machine Here
+		*)
+		// Machine initilized in E_InOperationBase.Init
+		// Error condition again, air pressure could be removed while machine is running
+		IF NOT Enable THEN
+			eInOperationBase := E_InOperationBase.Idle;
+		ELSIF tonIdleCondition.Q THEN			// Error condition
+		    eInOpGripper := E_InOpGripper.IsIdle;
+		 	eInOperationBase := E_InOperationBase.Error;
+		ELSE // Init internal state machine and jump in it
+			CASE eInOpGripper OF
+				E_InOpGripper.IsIdle :
+					; // Do nothing, condition is checked in IF
+				E_InOpGripper.IsOpen :
+					IF hw.Value &gt; thClose THEN
+						eInOpGripper := E_InOpGripper.IsClosed;
+					ELSIF (hw.Value &gt; thPartMin) AND (hw.Value &lt; thPartMax) THEN
+						eInOpGripper := E_InOpGripper.PartPresent;
+					END_IF
+				E_InOpGripper.IsClosed :
+					IF hw.Value &lt; thOpen THEN
+						eInOpGripper := E_InOpGripper.IsOpen;
+					END_IF
+				E_InOpGripper.PartPresent :
+					IF hw.Value &lt; thOpen THEN
+						eInOpGripper := E_InOpGripper.IsOpen;
+					END_IF
+			END_CASE
+		END_IF
+	E_InOperationBase.Error :
+		IF NOT Enable THEN
+			eInOperationBase := E_InOperationBase.Idle;
+		END_IF
+END_CASE
+
+(*
+	Output Management
+*)
+InOperation			:= (eInOperationBase = E_InOperationBase.InOp);
+Error				:= (eInOperationBase = E_InOperationBase.Error);
+
+IsOpen				:= (eInOperationBase = E_InOperationBase.InOp) AND (eInOpGripper = E_InOpGripper.IsOpen);
+IsClosed			:= (eInOperationBase = E_InOperationBase.InOp) AND (eInOpGripper = E_InOpGripper.IsClosed);
+PartPresent			:= (eInOperationBase = E_InOperationBase.InOp) AND (eInOpGripper = E_InOpGripper.PartPresent);
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>9b5d7a73-be36-44c1-b38e-c759b2cb4022</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_CloseGripper" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="Execute">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="thClosedMin">
+              <type>
+                <WORD />
+              </type>
+              <initialValue>
+                <simpleValue value="950" />
+              </initialValue>
+            </variable>
+          </inputVars>
+          <inOutVars>
+            <variable name="hwSensor">
+              <type>
+                <derived name="UA_Schunk_mms" />
+              </type>
+            </variable>
+            <variable name="hwEV">
+              <type>
+                <derived name="UA_Festo" />
+              </type>
+            </variable>
+          </inOutVars>
+          <outputVars>
+            <variable name="Done">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Active">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Error">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="tnCheckDone">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="rExecute">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="eExecuteDone">
+              <type>
+                <derived name="E_ExecuteDone" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* 
+	Manage Inputs
+*)
+rExecute(CLK := Execute);
+// Timer.Q true if Execute and not threshold for more thant 1 sec.
+tnCheckDone(IN := Execute AND NOT (hwSensor.Value &gt; thClosedMin),
+	        PT := T#1S);
+
+CASE eExecuteDone OF
+	E_ExecuteDone.Idle :
+		IF rExecute.Q THEN
+			eExecuteDone := E_ExecuteDone.Init;
+		END_IF
+
+	E_ExecuteDone.Init :
+		// No init
+		IF tnCheckDone.Q THEN
+			eExecuteDone := E_ExecuteDone.Error;
+		ELSE
+			eExecuteDone := E_ExecuteDone.InOp;
+		END_IF
+
+	E_ExecuteDone.InOp :
+		IF tnCheckDone.Q THEN
+			eExecuteDone := E_ExecuteDone.Error;
+		ELSIF (hwSensor.Value &gt; thClosedMin) THEN
+			eExecuteDone := E_ExecuteDone.Done;
+		END_IF
+	
+	E_ExecuteDone.Done :
+		IF NOT Execute THEN
+			eExecuteDone := E_ExecuteDone.Idle;
+		END_IF
+
+	E_ExecuteDone.Error :
+		IF NOT Execute THEN
+			eExecuteDone := E_ExecuteDone.Idle;
+		END_IF
+END_CASE
+
+IF eExecuteDone = E_ExecuteDone.InOp THEN
+	hwEV.SetOut := FALSE;
+END_IF
+
+Done := (eExecuteDone = E_ExecuteDone.Done);
+Active := (eExecuteDone = E_ExecuteDone.Init) OR (eExecuteDone = E_ExecuteDone.InOp) ;
+Error := (eExecuteDone = E_ExecuteDone.Error);</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>e638188a-c294-469b-9937-6dd92bfe7999</ObjectId>
+          </data>
+        </addData>
+      </pou>
+      <pou name="FB_OpenGripper" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="Execute">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="thOpenMax">
+              <type>
+                <WORD />
+              </type>
+              <initialValue>
+                <simpleValue value="50" />
+              </initialValue>
+            </variable>
+          </inputVars>
+          <inOutVars>
+            <variable name="hwSensor">
+              <type>
+                <derived name="UA_Schunk_mms" />
+              </type>
+            </variable>
+            <variable name="hwEV">
+              <type>
+                <derived name="UA_Festo" />
+              </type>
+            </variable>
+          </inOutVars>
+          <outputVars>
+            <variable name="Done">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Active">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="Error">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </outputVars>
+          <localVars>
+            <variable name="tnCheckDone">
+              <type>
+                <derived name="TON" />
+              </type>
+            </variable>
+            <variable name="rExecute">
+              <type>
+                <derived name="R_TRIG" />
+              </type>
+            </variable>
+            <variable name="eExecuteDone">
+              <type>
+                <derived name="E_ExecuteDone" />
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">(* 
+	Manage Inputs
+*)
+rExecute(CLK := Execute);
+// Timer.Q true if Execute and not threshold for more thant 1 sec.
+tnCheckDone(IN := Execute AND NOT (hwSensor.Value &lt; thOpenMax),
+	        PT := T#1S);
+
+CASE eExecuteDone OF
+	E_ExecuteDone.Idle :
+		IF rExecute.Q THEN
+			eExecuteDone := E_ExecuteDone.Init;
+		END_IF
+
+	E_ExecuteDone.Init :
+		// No init
+		IF tnCheckDone.Q THEN
+			eExecuteDone := E_ExecuteDone.Error;
+		ELSE
+			eExecuteDone := E_ExecuteDone.InOp;
+		END_IF
+
+	E_ExecuteDone.InOp :
+		IF tnCheckDone.Q THEN
+			eExecuteDone := E_ExecuteDone.Error;
+		ELSIF (hwSensor.Value &lt; thOpenMax) THEN
+			eExecuteDone := E_ExecuteDone.Done;
+		END_IF
+	
+	E_ExecuteDone.Done :
+		IF NOT Execute THEN
+			eExecuteDone := E_ExecuteDone.Idle;
+		END_IF
+
+	E_ExecuteDone.Error :
+		IF NOT Execute THEN
+			eExecuteDone := E_ExecuteDone.Idle;
+		END_IF
+END_CASE
+
+IF eExecuteDone = E_ExecuteDone.InOp THEN
+	hwEV.SetOut := TRUE;
+END_IF
+
+Done := (eExecuteDone = E_ExecuteDone.Done);
+Active := (eExecuteDone = E_ExecuteDone.Init) OR (eExecuteDone = E_ExecuteDone.InOp) ;
+Error := (eExecuteDone = E_ExecuteDone.Error);</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>3afb73d4-00d6-4071-acdc-99072e7c4f53</ObjectId>
+          </data>
+        </addData>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Folder Name="POUs">
+          <Object Name="PRG_Gripper" ObjectId="b7ba01cf-22f6-45c0-a794-f5960a162608">
+            <Object Name="ACT_ForAxis_X" ObjectId="c942ee71-54df-4622-ab74-7fabaf8b5da6" />
+            <Object Name="ACT_ForAxis_Y" ObjectId="bf66d19f-a3ba-4a01-93df-097fdbe59c02" />
+            <Object Name="ACT_ForAxis_Z" ObjectId="121ee88f-6e85-4783-aa79-b03395285995" />
+            <Object Name="ACT_SomeStateMachines" ObjectId="a39d17b3-4c87-4b44-9064-cff428628cac" />
+          </Object>
+        </Folder>
+        <Folder Name="YourJob">
+          <Object Name="E_InOperationBase" ObjectId="a9359279-3f40-47d3-ae17-e926eb3489d1" />
+          <Object Name="E_InOpGripper" ObjectId="c144f9bc-04ac-43b8-9eab-3b0226c81fd6" />
+          <Object Name="FB_GripperState" ObjectId="9b5d7a73-be36-44c1-b38e-c759b2cb4022" />
+          <Object Name="FB_CloseGripper" ObjectId="e638188a-c294-469b-9937-6dd92bfe7999" />
+          <Object Name="FB_OpenGripper" ObjectId="3afb73d4-00d6-4071-acdc-99072e7c4f53" />
+          <Object Name="E_ExecuteDone" ObjectId="0239a653-e5ee-4ff7-b7b0-d124031a111f" />
+        </Folder>
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>
