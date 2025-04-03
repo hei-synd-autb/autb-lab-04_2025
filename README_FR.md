@@ -496,6 +496,73 @@ stTestFbGripperHmi.gripperStateInOp := ...
 </figure>
 
 
+# Alarmes
+Toute machine devrait être livrée avec un système d'alarme.
+Une fois les bases testées, vous pouvez ajouter deux alarmes pour les deux types de commande, Open et Close.
+
+Si la fermeture ou l'ouverture de la pince ne se fait pas correctement, la machine doit transmettre une information et passer en état **Stopped**.
+
+Vous ajouter les deux Function Block suivants dans votre programme et vous les paramétrez correctement.
+
+```iecst
+VAR
+	fbSetAlarm_OpenGripper  : FB_HEVS_SetAlarm;
+	fbSetAlarm_CloseGripper : FB_HEVS_SetAlarm;
+END_VAR
+
+```
+
+#### E_EventCategory
+Permet de sélectionner le type d'événement généré par l'alarme.
+
+```iecst
+{attribute 'qualified_only'}
+TYPE E_EventCategory :
+(
+	Warning := 0,
+	Complete:= 6,
+	Abort   := 4,
+	Stop    := 3,
+	Hold    := 2,
+	Suspend := 1
+) DINT := Warning;
+END_TYPE
+```
+
+-	**bAckAlarmTrig** n'est pas implémenté actuellement au niveau interface utilisateur.
+-	**bSetAlarm** est la condition qui déclenche l'alarme.
+
+
+### ID
+**<span style="color:red;">ID doit être unique</span>**, car c'est cette valeur que le système utilise pour trier les alarmes. C'est aussi un principe, pour une machine, chaque alarme possède un numéro d'identification unique, même si on peut ajouter un paramètre **Value** et éventuellement modifier une partie du texte. Il serait ainsi envisageable d'avoir la même alarme pour close et open avec une **Value** et un **Message** différent. Mais à condition que **Category** ne change pas.
+
+### Code
+```iecst
+fbSetAlarm_OpenGripper(bSetAlarm := ...,
+					   bAckAlarmTrig := FALSE,
+					   ID := 5,
+					   Value := 1,
+					   Message := 'Your Alarm Text',
+					   Category := E_EventCategory.Stop,
+					   // Reference to plc time from PackTag
+					   plcDateTimePack	:= PackTag.Admin.PLCDateTime,
+					   // Link to PackTag Admin
+					   stAdminAlarm := PackTag.Admin.Alarm,
+					   stAdminAlarmHistory := PackTag.Admin.AlarmHistory);	
+
+fbSetAlarm_CloseGripper(bSetAlarm := ...,
+					    bAckAlarmTrig := FALSE,
+					    ID := 6,
+					    Value := 1,
+					    Message := 'Yout alarm Text',
+					    Category := E_EventCategory.Stop,
+					    // Reference to plc time from PackTag
+					    plcDateTimePack	:= PackTag.Admin.PLCDateTime,
+					    // Link to PackTag Admin
+					    stAdminAlarm := PackTag.Admin.Alarm,
+					    stAdminAlarmHistory := PackTag.Admin.AlarmHistory);	
+
+```
 
 # Conclusion
 Les modèles de blocs fonctionnels "Execute" et "In Operation Base" jouent un rôle clé dans la programmation des PLC selon la norme IEC 61131-3.

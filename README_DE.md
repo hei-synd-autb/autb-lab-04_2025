@@ -493,7 +493,71 @@ stTestFbGripperHmi.gripperStateInOp := ...
     <figcaption>Sensor-/Zangentest mit Reagenzglas</figcaption>
 </figure>
 
+# Alarme
 
+Jede Maschine sollte mit einem Alarmsystem ausgestattet sein.  
+Nachdem die Grundlagen getestet wurden, können Sie zwei Alarme für die beiden Steuerungstypen, Öffnen und Schließen, hinzufügen.
+
+Wenn das Schließen oder Öffnen der Zange nicht korrekt ausgeführt wird, muss die Maschine eine Information übermitteln und in den Zustand **Stopped** wechseln.
+
+Fügen Sie die folgenden beiden Funktionsblöcke in Ihr Programm ein und konfigurieren Sie sie entsprechend:
+
+```iecst
+VAR
+	fbSetAlarm_OpenGripper  : FB_HEVS_SetAlarm;
+	fbSetAlarm_CloseGripper : FB_HEVS_SetAlarm;
+END_VAR
+```
+
+#### E_EventCategory
+Ermöglicht die Auswahl des Ereignistyps, der durch den Alarm generiert wird.
+
+```iecst
+{attribute 'qualified_only'}
+TYPE E_EventCategory :
+(
+	Warning := 0,
+	Complete:= 6,
+	Abort   := 4,
+	Stop    := 3,
+	Hold    := 2,
+	Suspend := 1
+) DINT := Warning;
+END_TYPE
+```
+
+- **bAckAlarmTrig** ist derzeit nicht auf der Benutzeroberfläche implementiert.  
+- **bSetAlarm** ist die Bedingung, die den Alarm auslöst.
+
+### ID
+**<span style="color:red;">Die ID muss eindeutig sein</span>**, da das System diesen Wert verwendet, um Alarme zu sortieren. Es ist auch ein Prinzip, dass jede Maschine eine eindeutige Identifikationsnummer für jeden Alarm hat, auch wenn ein Parameter **Value** hinzugefügt und ein Teil des Textes geändert werden kann. Es wäre somit möglich, denselben Alarm für Öffnen und Schließen mit unterschiedlichen **Value**- und **Message**-Werten zu verwenden, vorausgesetzt, dass sich die **Category** nicht ändert.
+
+### Code
+```iecst
+fbSetAlarm_OpenGripper(bSetAlarm := ...,
+					   bAckAlarmTrig := FALSE,
+					   ID := 5,
+					   Value := 1,
+					   Message := 'Ihr Alarmtext',
+					   Category := E_EventCategory.Stop,
+					   // Referenz auf PLC-Zeit aus PackTag
+					   plcDateTimePack	:= PackTag.Admin.PLCDateTime,
+					   // Verknüpfung mit PackTag Admin
+					   stAdminAlarm := PackTag.Admin.Alarm,
+					   stAdminAlarmHistory := PackTag.Admin.AlarmHistory);	
+
+fbSetAlarm_CloseGripper(bSetAlarm := ...,
+						bAckAlarmTrig := FALSE,
+						ID := 6,
+						Value := 1,
+						Message := 'Ihr Alarmtext',
+						Category := E_EventCategory.Stop,
+						// Referenz auf PLC-Zeit aus PackTag
+						plcDateTimePack	:= PackTag.Admin.PLCDateTime,
+						// Verknüpfung mit PackTag Admin
+						stAdminAlarm := PackTag.Admin.Alarm,
+						stAdminAlarmHistory := PackTag.Admin.AlarmHistory);	
+```
 
 # Schlussfolgerung
 Die Funktionsblockmodelle „Execute“ und „In Operation Base“ spielen eine Schlüsselrolle bei der Programmierung von SPSen gemäß IEC 61131-3.
