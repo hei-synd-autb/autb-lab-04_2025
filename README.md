@@ -18,6 +18,8 @@ Vous trouverez la donnée du travail pratique sous :
 
 - [Deutsche Version](README_DE.md)
 
-<br>
+
+<strong style="color: red;">Note of 2025, UI to be revieved</strong>
+
 
 Remarque : -
