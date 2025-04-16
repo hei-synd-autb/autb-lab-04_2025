@@ -132,6 +132,10 @@ Programmieren Sie zwei Funktionsblöcke (FB), die auf dem **Execute**-Modell bas
 ***Voraussetzung:***
 Um die Zangenverwaltung zu deaktivieren, die bereits in dem zur Verfügung gestellten Programm implementiert ist, löschen Sie ``PRG_DeviceManager`` unter Task Configuration --> MainTask (IEC-Tasks).
 
+> Normally with last version, no more needed to delete ``PRG_DeviceManager``.
+
+<br>
+
 <figure>
     <img src="./img/PRG_DeviceManager.png"
          alt="Lost image :PRG_DeviceManager.png">

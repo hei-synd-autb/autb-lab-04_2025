@@ -134,6 +134,10 @@ Programmer deux blocs fonctionnels (FB) basés sur le modèle **Execute** qui co
 ***Prérequis :***
 Afin de désactiver la gestion de la pince qui est déjà implémentée dans le programme mis à disposition, supprimer ``PRG_DeviceManager`` sous Task Configuration --> MainTask (IEC-Tasks).
 
+> Normally with last version, no more needed to delete ``PRG_DeviceManager``.
+
+<br>
+
 <figure>
     <img src="./img/PRG_DeviceManager.png"
          alt="Lost image :PRG_DeviceManager.png">
